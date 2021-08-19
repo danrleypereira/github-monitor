@@ -17,13 +17,13 @@ def commit_list_view(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def repository_create_view(request):  
+def repository_create_view(request):
     validate = check_repo_exists_remote(request) and not check_repo_exists_database(request)
     if(validate):
         serializer = RepositorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # Implement task to retrieve all commit (last 30 days) here.
+        save_last30days_commits(request.user, request.data["name"])
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"Not Found or Already on database."}, status=status.HTTP_404_NOT_FOUND)
