@@ -1,15 +1,17 @@
-from os import access
-from repositories import serializers
 import requests as req
 import json
 from datetime import datetime, timedelta
-from githubmonitor.celery import app
+
 from social_django.models import UserSocialAuth
+from django.contrib.auth.models import User
+from django.db import transaction
 
+from githubmonitor.celery import app
+from repositories import serializers
 from celery.utils.log import get_task_logger
-from .models import Repository, Commit
-
 logger = get_task_logger(__name__)
+
+from .models import Repository, Commit
 
 @app.task(serializer='json')
 def check_repo_exists_remote(ui_request):
@@ -33,8 +35,10 @@ def check_repo_exists_database(ui_request):
         return False
     return True
 
-@app.task(bind=True, retry_limit=4, default_retry_delay=10, serializer='json')
-def save_last30days_commits(self, user, repo):
+# @transaction.atomic()
+@app.task(bind=True, retry_limit=2, default_retry_delay=3, serializer='json')
+def save_last30days_commits(self, repo, user_id):
+    user = User.objects.get(id= user_id)
     try:
         repo = Repository.objects.get(name=repo)
     except Repository.DoesNotExist as e:
@@ -44,20 +48,26 @@ def save_last30days_commits(self, user, repo):
 
     logger.info('Commits from remote: {0}'.format(commits))
     try:
+        save_commits(commits, repo)
+    except Exception as e:
+        self.retry(exc= e)
+
+@transaction.atomic()
+def save_commits(commits, repo):
+    try:
         for com in commits:
             serializer = Commit(
                 message= com["commit"]["message"],
                 sha= com["sha"],
-                author= com["commit"]["author"]["name"],
+                author= com["author"]["login"] if com['author'] else 'not defined',
                 url= com["url"],
                 date= com["commit"]["author"]["date"],
-                avatar= com["commit"]["author"]["name"],
+                avatar= com["author"]["avatar_url"] if com['author'] else 'https://avatars.githubusercontent.com/u/16515996',
                 repository= repo
             )
             serializer.save()
     except Exception as e:
-        self.retry(exc= e)
-
+        raise e
 
 @app.task(serializer='json')
 def get_last30days_commits(repo, owner):
