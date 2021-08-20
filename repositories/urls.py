@@ -1,10 +1,10 @@
 from django.urls import path
 
-from .views import commit_list_view, repository_create_view
+from .views import CommitView, RepositoryView
 
 app_name = 'repositories'
 
 urlpatterns = [
-    path('api/commits/', commit_list_view, name='commits-list'),
-    path('api/repositories/', repository_create_view, name='repositories-create'),
+    path('api/commits/', CommitView.as_view(), name='commits-list'),
+    path('api/repositories/', RepositoryView.as_view(), name='repositories-create'),
 ]

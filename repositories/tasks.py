@@ -6,7 +6,7 @@ from repositories import serializers
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
-from .models import Repository, Commit
+from .models import Repository
 from .services import get_last30days_commits, save_commits
 
 @app.task(bind=True, retry_limit=2, default_retry_delay=3, serializer='json')

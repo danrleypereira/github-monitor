@@ -2,10 +2,8 @@ import requests as req
 import json
 from datetime import datetime, timedelta
 
-
 from social_django.models import UserSocialAuth
 from django.db import transaction
-
 
 from .models import Repository, Commit
 
