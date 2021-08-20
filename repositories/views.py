@@ -7,6 +7,9 @@ from .models import Commit
 from .serializers import CommitSerializer, RepositorySerializer
 from .tasks import *
 
+from .services import check_repo_exists_remote, check_repo_exists_database
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def commit_list_view(request):
@@ -23,7 +26,8 @@ def repository_create_view(request):
         serializer = RepositorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        save_last30days_commits(request.user, request.data["name"])
+        save_last30days_commits.delay(request.data["name"], request.user.id)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"Not Found or Already on database."}, status=status.HTTP_404_NOT_FOUND)
+
