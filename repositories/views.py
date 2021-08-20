@@ -7,6 +7,8 @@ from .models import Commit
 from .serializers import CommitSerializer, RepositorySerializer
 from .tasks import *
 
+from .services import check_repo_exists_remote, check_repo_exists_database
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
