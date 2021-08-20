@@ -1,7 +1,6 @@
-from rest_framework import generics, status
+from rest_framework import mixins, generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .models import Commit, Repository
 from .serializers import CommitSerializer, RepositorySerializer
@@ -9,13 +8,10 @@ from .services import check_repo_exists_database, check_repo_exists_remote
 from .tasks import save_last30days_commits
 
 
-class CommitView(APIView):
+class CommitView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        commits = Commit.objects.all()
-        serializer = CommitSerializer(commits, many=True)
-        return Response(serializer.data)
+    serializer_class = CommitSerializer
+    queryset = Commit.objects.all()
 
 
 class RepositoryView(generics.CreateAPIView):
