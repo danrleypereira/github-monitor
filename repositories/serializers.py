@@ -6,7 +6,7 @@ from .models import Commit, Repository
 class RepositorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Repository
-        fields = ('name',)
+        fields = ('name', 'id')
 
 
 class CommitSerializer(serializers.ModelSerializer):
