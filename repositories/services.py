@@ -10,21 +10,12 @@ from .models import Commit, Repository
 URL_BASE = 'https://api.github.com'
 
 
-def check_repo_exists_remote(ui_request):
+def repo_exists_in_github(ui_request):
     owner = ui_request.user
     repo = ui_request.data['name']
     url = '{0}/{1}/{2}/{3}'.format(URL_BASE, 'repos', str(owner), str(repo))
     request_repo_git = req.get(url)
     if request_repo_git.status_code != 200:
-        return False
-    return True
-
-
-def check_repo_exists_database(ui_request):
-    repo = ui_request.data['name']
-    try:
-        Repository.objects.get(name=str(repo))
-    except Repository.DoesNotExist:
         return False
     return True
 

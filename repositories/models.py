@@ -13,6 +13,8 @@ class Repository(models.Model):
 
     class Meta:
         verbose_name_plural = 'Repositories'
+        constraints = [models.UniqueConstraint(
+            fields=['name'], name='repository_type_unq')]
 
 
 class Commit(models.Model):
