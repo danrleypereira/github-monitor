@@ -1,26 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {Field, reduxForm} from 'redux-form';
+import React from "react";
+import PropTypes from "prop-types";
+import { Field, reduxForm } from "redux-form";
 
 const renderField = ({
-  input, placeholder, className, type, meta: {touched, error, invalid},
+  input,
+  placeholder,
+  className,
+  type,
+  meta: { touched, error, invalid },
 }) => (
-    <div>
-      <input
-        {...input}
-        placeholder={placeholder}
-        className={`${className} ${touched && invalid ? 'is-invalid' : ''}`}
-        type={type}
-      />
-      {touched
-        && ((error && (
-          <div className="invalid-feedback">
-            {error}
-          </div>
-        )))
-      }
-    </div>
-  );
+  <div>
+    <input
+      {...input}
+      placeholder={placeholder}
+      className={`${className} ${touched && invalid ? "is-invalid" : ""}`}
+      type={type}
+    />
+    {touched && error && <div className="invalid-feedback">{error}</div>}
+  </div>
+);
 
 renderField.propTypes = {
   input: PropTypes.object.isRequired,
@@ -31,17 +29,20 @@ renderField.propTypes = {
 };
 
 const RepoCreateForm = (props) => {
-  const {
-    successMessage, handleSubmit, pristine, submitting,
-  } = props;
+  const { successMessage, message, handleSubmit, pristine, submitting } = props;
+
   return (
     <div>
-      {successMessage
-        && (
-          <div className="alert alert-success" role="alert">
-            Repository added successfully!
-          </div>
-        )}
+      {successMessage != undefined && (
+        <div
+          className={`alert ${
+            successMessage ? "alert-success" : "alert-danger"
+          }`}
+          role="alert"
+        >
+          {message}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="col-10">
@@ -54,7 +55,11 @@ const RepoCreateForm = (props) => {
             />
           </div>
           <div className="col-2">
-            <button disabled={pristine || submitting} className="btn btn-block btn-primary" type="submit">
+            <button
+              disabled={pristine || submitting}
+              className="btn btn-block btn-primary"
+              type="submit"
+            >
               Submit
             </button>
           </div>
@@ -68,11 +73,12 @@ RepoCreateForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   pristine: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
-  successMessage: PropTypes.bool.isRequired,
+  successMessage: PropTypes.bool,
+  message: PropTypes.string.isRequired,
 };
 
 const validate = (values) => {
-  const {username} = document.getElementById('main').dataset;
+  const { username } = document.getElementById("main").dataset;
   const errors = {};
   if (!values.name || !values.name.startsWith(`${username}/`)) {
     errors.name = `Repository must belong to you (eg: ${username}/repo-name)`;
@@ -81,6 +87,6 @@ const validate = (values) => {
 };
 
 export default reduxForm({
-  form: 'repoCreate',
+  form: "repoCreate",
   validate,
 })(RepoCreateForm);

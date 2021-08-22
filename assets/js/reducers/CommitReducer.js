@@ -1,8 +1,9 @@
-import * as types from '../actions/ActionTypes';
+import * as types from "../actions/ActionTypes";
 
 const initialState = {
   commits: [],
-  successMessage: false,
+  successMessage: undefined,
+  message: "",
 };
 
 const commitReducer = (state = initialState, action) => {
@@ -13,7 +14,11 @@ const commitReducer = (state = initialState, action) => {
         commits: Object.values(action.payload["results"]),
       };
     case types.CREATE_REPOSITORY_SUCCESS: {
-      return {...state, successMessage: action.payload.successMessage};
+      return {
+        ...state,
+        successMessage: action.payload.successMessage,
+        message: action.payload.message,
+      };
     }
     default:
       return state;
