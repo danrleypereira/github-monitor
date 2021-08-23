@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Commit
+from .models import Commit, Repository
 from .serializers import CommitSerializer, RepositorySerializer
 from .services import repo_exists_in_github
 from .tasks import save_last30days_commits
@@ -11,7 +11,17 @@ from .tasks import save_last30days_commits
 class CommitView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CommitSerializer
-    queryset = Commit.objects.all()
+    filter_backends = []
+    filterset_fields = ('author',)
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        author = query_params.get('author')
+        repository = query_params.get('repository')
+        repository_name = Repository.objects.get(name=repository)
+        commits = Commit.objects.filter(author=author).filter(
+            repository=repository_name.id)
+        return commits
 
 
 class RepositoryView(generics.CreateAPIView):

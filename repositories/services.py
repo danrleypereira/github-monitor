@@ -5,7 +5,7 @@ import requests as req
 from django.db import transaction
 from social_django.models import UserSocialAuth
 
-from .models import Commit, Repository
+from .models import Commit
 
 URL_BASE = 'https://api.github.com'
 
@@ -65,9 +65,3 @@ def request_user_data(ui_request):
     })
     res = response_user._content.decode('ascii')
     return json.loads(res)
-
-
-def logging(msg):
-    log = msg
-    print('\n' + len(str(log))*'=' + '\n' +
-          str(log) + '\n' + len(str(log))*'=' + '\n')
